@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Lambarin Investimentos</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-plugin-datalabels/2.2.0/chartjs-plugin-datalabels.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#42484b; --ink-strong:#2b3033; --amber:#e7bb13; --amber-deep:#b8930c;
+    --paper:#ffffff; --canvas:#eef0f0; --line:#e2e5e5; --muted:#8a9094;
+    --gray-series:#d6d9d7; --pos:#2f7d51;
+    --mono:'IBM Plex Mono',monospace; --disp:'Archivo',system-ui,sans-serif; --body:'Inter',system-ui,sans-serif;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;background:var(--canvas);color:var(--ink);font-family:var(--body);-webkit-font-smoothing:antialiased;}
+  .deck{max-width:1060px;margin:0 auto;padding:28px 20px 60px;}
+  .brandbar{display:flex;align-items:center;justify-content:space-between;padding:0 4px 16px;}
+  .brandbar .mark{display:flex;align-items:center;gap:10px;font-family:var(--disp);font-weight:800;letter-spacing:.14em;font-size:13px;color:var(--ink-strong);text-transform:uppercase;}
+  .brandbar .mark .dot{width:10px;height:10px;background:var(--amber);border-radius:2px;transform:rotate(45deg);}
+  .brandbar .doc{font-family:var(--mono);font-size:11px;color:var(--muted);letter-spacing:.04em;}
+
+  .card{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:40px 44px;margin-bottom:20px;box-shadow:0 1px 2px rgba(40,48,51,.04);position:relative;overflow:hidden;}
+  .card::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--amber);}
+  h1{font-family:var(--disp);font-weight:800;font-size:30px;line-height:1.14;letter-spacing:-.01em;color:var(--ink-strong);margin:0 0 18px;}
+  .card p{font-size:14.5px;line-height:1.6;color:var(--ink);margin:0 0 18px;max-width:80ch;}
+  .card p:last-child{margin-bottom:0;}
+  b{color:var(--ink-strong);}
+
+  /* cover */
+  .cover{padding:56px 44px 46px;text-align:center;}
+  .cover h1{font-size:40px;margin-bottom:20px;letter-spacing:-.02em;}
+  .labels{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;margin-bottom:22px;}
+  .labels .lab{font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;color:var(--ink);border:1px solid var(--line);padding:6px 13px;border-radius:20px;background:#fbfcfc;}
+  .subtitle{font-family:var(--disp);font-weight:600;font-size:16px;color:var(--muted);margin:0 auto 8px;max-width:70ch;}
+  .divider{border:none;border-top:1px solid var(--line);margin:24px auto;max-width:640px;}
+  .stats{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1px solid var(--line);border-bottom:1px solid var(--line);margin:6px 0 24px;}
+  .stat{padding:22px 16px;border-left:1px solid var(--line);text-align:center;}
+  .stat:first-child{border-left:none;}
+  .stat .v{font-family:var(--mono);font-weight:600;font-size:27px;color:var(--ink-strong);letter-spacing:-.02em;line-height:1;}
+  .stat .v.pos{color:var(--pos);}
+  .stat .t{font-family:var(--disp);font-weight:700;font-size:13.5px;color:var(--ink-strong);margin-top:12px;}
+  .stat .s{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.35;}
+
+  .aside{border-left:3px solid var(--amber);background:#fdfbf2;padding:16px 20px;border-radius:0 10px 10px 0;font-size:13.5px;line-height:1.6;color:var(--ink);text-align:left;}
+  .aside.success{border-left-color:var(--pos);background:#f2f8f4;}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;margin:0 0 6px;}
+  thead th{background:var(--amber);color:#3a2f00;font-family:var(--disp);font-weight:700;font-size:12.5px;text-align:right;padding:11px 14px;}
+  thead th:first-child{text-align:left;border-top-left-radius:8px;}
+  thead th:last-child{border-top-right-radius:8px;}
+  tbody td{padding:11px 14px;text-align:right;border-bottom:1px solid var(--line);font-family:var(--mono);font-size:13.5px;color:var(--ink);}
+  tbody td:first-child{text-align:left;font-family:var(--body);font-weight:500;color:var(--ink-strong);}
+  tbody tr.total td{font-weight:600;color:var(--ink-strong);border-bottom:none;border-top:2px solid var(--ink-strong);background:#fbfbf7;}
+  td .amber{color:var(--amber-deep);font-weight:600;}
+  .table-horiz thead th{background:#f0f2f2;color:var(--ink-strong);}
+
+  .boxes{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:0 0 24px;}
+  .box{background:var(--ink);color:#fff;border-radius:12px;padding:22px 20px;text-align:center;}
+  .box.accent{background:var(--amber);color:#3a2f00;}
+  .box.win{background:var(--pos);}
+  .box .bt{font-family:var(--disp);font-size:13px;font-weight:700;letter-spacing:.02em;margin-bottom:12px;opacity:.92;}
+  .box .bv{font-family:var(--mono);font-weight:600;font-size:26px;letter-spacing:-.02em;}
+  .box .bs{font-size:11px;opacity:.8;margin-top:8px;line-height:1.4;}
+
+  h4.chart-h{font-family:var(--disp);font-weight:700;font-size:14px;color:var(--ink-strong);margin:24px 0 10px;}
+  .chart-wrap{position:relative;height:260px;border:1px solid var(--line);border-radius:12px;padding:16px 18px;background:#fbfcfc;}
+  .chart-pair{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:16px;}
+  .chart-pair .chart-wrap{height:220px;}
+  .chart-pair h4.chart-h{margin:0 0 8px;text-align:center;}
+  .legend{display:flex;gap:18px;margin:14px 0 4px;font-size:12px;color:var(--muted);justify-content:flex-start;}
+  .legend span{display:inline-flex;align-items:center;gap:7px;}
+  .swatch{width:12px;height:12px;border-radius:3px;display:inline-block;}
+
+  @media (max-width:720px){
+    .card{padding:26px 22px;}
+    .cover h1{font-size:30px;}
+    .stats{grid-template-columns:repeat(2,1fr);}
+    .stat{border-left:none;border-top:1px solid var(--line);}
+    .stat:first-child,.stat:nth-child(2){border-top:none;}
+    .stat:nth-child(odd){border-left:none;}
+    .boxes{grid-template-columns:1fr;}
+    .chart-pair{grid-template-columns:1fr;}
+    table{font-size:12.5px;}thead th,tbody td{padding:9px 9px;}
+  }
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <div class="brandbar">
+    <div class="mark"><span class="dot"></span>Lambarin Investimentos</div>
+    <div class="doc">Avaliação · Old Friends</div>
+  </div>
+
+  <!-- CARD 1 — CAPA -->
+  <section class="card cover">
+    <h1>Lambarin Investimentos</h1>
+    <div class="labels">
+      <span class="lab">Posição em 31/07/2026</span>
+      <span class="lab">Old Friends</span>
+      <span class="lab">2 Lojas: Palladium + Jockey</span>
+      <span class="lab">Mês Fechado</span>
+    </div>
+    <p class="subtitle">Avaliação | Old Friends — Fechamento de Caixa Julho/2026</p>
+    <hr class="divider">
+    <div class="stats">
+      <div class="stat"><div class="v">R$ 122k</div><div class="t">Vendas</div><div class="s">Faturamento total do mês</div></div>
+      <div class="stat"><div class="v">R$ 114,9k</div><div class="t">Contas Pagas</div><div class="s">Total pago no mês</div></div>
+      <div class="stat"><div class="v">R$ 30k</div><div class="t">Contas não pagas</div><div class="s">Impostos</div></div>
+      <div class="stat"><div class="v pos">+R$ 7,1k</div><div class="t">Variação de Caixa</div><div class="s">Resultado operacional líquido</div></div>
+    </div>
+    <div class="aside success"><p style="margin:0"><b>Lojas</b> geraram caixa operacional positivo, sem necessidade de aporte de capital externo. Permitido pelo diferimento de impostos.</p></div>
+  </section>
+
+  <!-- CARD 2 — VENDAS E DESPESAS POR LOJA -->
+  <section class="card">
+    <h1>Vendas e Despesas por Loja — Julho/2026</h1>
+    <p>Desempenho individual e consolidado das duas unidades no mês fechado. A Jockey quitou 100% das obrigações do mês; a Palladium acumulou impostos vencidos.</p>
+    <table>
+      <thead><tr><th>Loja</th><th>Vendas (R$)</th><th>Despesas a Pagar (mês)</th><th>Contas Pagas</th><th>Não Pagas (impostos)</th></tr></thead>
+      <tbody>
+        <tr><td>Palladium</td><td><b>66.219,63</b></td><td>95.548,66</td><td>65.574,70</td><td><span class="amber">29.973,96</span></td></tr>
+        <tr><td>Jockey</td><td><b>55.825,92</b></td><td>49.367,16</td><td>49.367,16</td><td>0,00</td></tr>
+        <tr class="total"><td>Consolidado</td><td>122.045,55</td><td>144.915,82</td><td>114.941,86</td><td>29.973,96</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- CARD 3 — GERAÇÃO DE CAIXA -->
+  <section class="card">
+    <h1>Geração de Caixa — Julho/2026</h1>
+    <div class="boxes">
+      <div class="box win"><div class="bt">Caixa Operacional</div><div class="bv">+R$ 7,1 mil</div><div class="bs">Vendas − Contas pagas no mês</div></div>
+      <div class="box"><div class="bt">Aporte de Capital</div><div class="bv">R$ 0</div><div class="bs">Nenhum aporte necessário em julho</div></div>
+      <div class="box accent"><div class="bt">Variação Líquida de Caixa</div><div class="bv">+R$ 7,1 mil</div><div class="bs">Resultado final do período</div></div>
+    </div>
+    <table class="table-horiz">
+      <thead><tr><th>Loja</th><th>Caixa Operacional</th><th>Aporte</th><th>Variação Líquida</th></tr></thead>
+      <tbody>
+        <tr><td>Palladium</td><td>+R$ 644,93</td><td>0,00</td><td>+R$ 644,93</td></tr>
+        <tr><td>Jockey</td><td><b>+R$ 6.458,76</b></td><td>0,00</td><td><b>+R$ 6.458,76</b></td></tr>
+        <tr class="total"><td>Consolidado</td><td>+R$ 7.103,69</td><td>0,00</td><td>+R$ 7.103,69</td></tr>
+      </tbody>
+    </table>
+    <div class="aside" style="margin-top:22px"><p style="margin:0"><b>Jockey</b> puxou o resultado (+R$ 6,5 mil); a <b>Palladium</b> ficou perto do equilíbrio (+R$ 645). <b>Ressalva:</b> a Palladium postergou R$ 30 mil em impostos — parte do caixa positivo reflete esse diferimento, não receita adicional.</p></div>
+  </section>
+
+  <!-- CARD 4 — ACUMULADO -->
+  <section class="card">
+    <h1>Acumulado: Vendas vs. Despesas — Jun+Jul/2026</h1>
+    <table class="table-horiz">
+      <thead><tr><th>Mês</th><th>Vendas (R$)</th><th>Despesas (R$)</th></tr></thead>
+      <tbody>
+        <tr><td>Junho/2026</td><td>122.422,06</td><td>146.912,86</td></tr>
+        <tr><td>Julho/2026</td><td>122.045,55</td><td>144.915,82</td></tr>
+        <tr class="total"><td>Acumulado Jun+Jul</td><td>244.467,61</td><td>291.828,68</td></tr>
+      </tbody>
+    </table>
+
+    <h4 class="chart-h">Consolidado — Vendas vs. Despesas por Mês</h4>
+    <div class="legend">
+      <span><span class="swatch" style="background:#42484b"></span>Vendas (R$)</span>
+      <span><span class="swatch" style="background:#d6d9d7"></span>Despesas (R$)</span>
+    </div>
+    <div class="chart-wrap"><canvas id="chConsol"></canvas></div>
+
+    <div class="chart-pair">
+      <div>
+        <h4 class="chart-h">Palladium</h4>
+        <div class="chart-wrap"><canvas id="chPall"></canvas></div>
+      </div>
+      <div>
+        <h4 class="chart-h">Jockey</h4>
+        <div class="chart-wrap"><canvas id="chJock"></canvas></div>
+      </div>
+    </div>
+
+    <p style="margin-top:22px">No acumulado, as despesas (R$ 291,8 mil) superam as vendas (R$ 244,5 mil) em <b>R$ 47,4 mil</b> — déficit integralmente da <b>Palladium</b> (vendas R$ 150,6 mil × despesas R$ 201,0 mil). A <b>Jockey</b> já é superavitária (vendas R$ 93,9 mil × despesas R$ 90,9 mil) e apresenta trajetória crescente de vendas.</p>
+  </section>
+
+</div>
+
+<script>
+Chart.register(ChartDataLabels);
+Chart.defaults.font.family = "'IBM Plex Mono', monospace";
+Chart.defaults.color = '#8a9094';
+const VENDAS='#42484b', DESPESAS='#d6d9d7';
+const fmt = n => n.toLocaleString('pt-BR',{maximumFractionDigits:0});
+
+function col(id, vendas, despesas){
+  new Chart(document.getElementById(id),{
+    type:'bar',
+    data:{labels:['Junho','Julho'],datasets:[
+      {label:'Vendas (R$)', data:vendas, backgroundColor:VENDAS, borderRadius:4, maxBarThickness:54},
+      {label:'Despesas (R$)', data:despesas, backgroundColor:DESPESAS, borderRadius:4, maxBarThickness:54}
+    ]},
+    options:{
+      responsive:true, maintainAspectRatio:false,
+      layout:{padding:{top:22}},
+      plugins:{
+        legend:{display:false},
+        tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw.toLocaleString('pt-BR',{style:'currency',currency:'BRL'})}},
+        datalabels:{anchor:'end',align:'end',offset:2,color:'#42484b',font:{size:10,weight:'600'},formatter:v=>fmt(v)}
+      },
+      scales:{
+        x:{grid:{display:false},ticks:{color:'#42484b',font:{weight:'600'}}},
+        y:{grid:{color:'#eceeee'},ticks:{callback:v=>'R$ '+fmt(v),color:'#a4a9ac'},beginAtZero:true}
+      }
+    }
+  });
+}
+col('chConsol', [122422, 122046], [146913, 144916]);
+col('chPall',   [84354, 66220],   [105405, 95549]);
+col('chJock',   [38069, 55826],   [41508, 49367]);
+</script>
+</body>
+</html>
